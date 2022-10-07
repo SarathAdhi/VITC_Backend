@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.send("hello"));
 app.get("/faculty", getFaculties);
-app.get("/faculty/:uuid", getFacultyById);
+app.get("/faculty/:id", getFacultyById);
 
 app.post("/faculty", createFaculty);
 
