@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EducationalDetails {
+  id          Int     @id @default(autoincrement())
+  faculty     Faculty @relation(fields: [facultyUuid], references: [uuid])
+  facultyUuid Int
+  university  String  @db.VarChar(100)
+  degree      String  @db.VarChar(20)
+  graduatedIn Int
+}
+
+model ResearchDetails {
+  faculty        Faculty  @relation(fields: [facultyUuid], references: [uuid])
+  facultyUuid    Int      @unique
+  specialization String[]
+  orcid          String   @db.VarChar(255)
+  scopus         String   @db.VarChar(255)
+  googleScholar  String   @db.VarChar(255)
+  hIndex         Int
+  i10Index       Int
+}
+
+model PatentPublishedDetails {
+  id                Int     @id @default(autoincrement())
+  faculty           Faculty @relation(fields: [facultyUuid], references: [uuid])
+  facultyUuid       Int
+  title             String
+  applicationNumber String
+}
+
+model Faculty {
+  uuid                   Int                      @id @default(autoincrement())
+  id                     String                   @unique
+  email                  String                   @unique
+  name                   String                   @db.VarChar(50)
+  image                  String?
+  designation            String                   @db.VarChar(50)
+  school                 String                   @db.VarChar(80)
+  department             String                   @db.VarChar(80)
+  educationalDetails     EducationalDetails[]
+  researchDetails        ResearchDetails?
+  patentPublishedDetails PatentPublishedDetails[]
+  createdAt              DateTime                 @default(now())
+}

@@ -1,10 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const {
-  createFaculty,
-  getFaculties,
-  getFacultyById,
-} = require("./controllers/faculty.controllers");
+
+const { facultyRouter } = require("./src/routes/faculty.routes");
 
 const app = express();
 
@@ -12,10 +9,10 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => res.send("hello"));
-app.get("/faculty", getFaculties);
-app.get("/faculty/:id", getFacultyById);
 
-app.post("/faculty", createFaculty);
+app.use("/faculty", facultyRouter);
+
+// app.delete("/educational-details/:id", deleteEducationalDetailsFaculty);
 
 const port = 3001;
 app.listen(port, () => {
