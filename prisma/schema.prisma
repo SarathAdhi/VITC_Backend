@@ -11,12 +11,13 @@ datasource db {
 }
 
 model EducationalDetails {
-  id          Int     @id @default(autoincrement())
-  faculty     Faculty @relation(fields: [facultyUuid], references: [uuid])
-  facultyUuid Int
-  university  String  @db.VarChar(100)
-  degree      String  @db.VarChar(20)
-  graduatedIn Int
+  id             Int     @id @default(autoincrement())
+  faculty        Faculty @relation(fields: [facultyUuid], references: [uuid])
+  facultyUuid    Int
+  degree         String  @db.VarChar(20)
+  university     String  @db.VarChar(100)
+  specialization String
+  graduatedYear  String
 }
 
 model ResearchDetails {
@@ -30,25 +31,47 @@ model ResearchDetails {
   i10Index       Int
 }
 
-model PatentPublishedDetails {
-  id                Int     @id @default(autoincrement())
-  faculty           Faculty @relation(fields: [facultyUuid], references: [uuid])
-  facultyUuid       Int
-  title             String
-  applicationNumber String
-}
+// model PatentPublishedDetails {
+//   id                Int     @id @default(autoincrement())
+//   faculty           Faculty @relation(fields: [facultyUuid], references: [uuid])
+//   facultyUuid       Int
+//   title             String
+//   applicationNumber String
+// }
 
 model Faculty {
-  uuid                   Int                      @id @default(autoincrement())
-  id                     String                   @unique
-  email                  String                   @unique
-  name                   String                   @db.VarChar(50)
-  image                  String?
-  designation            String                   @db.VarChar(50)
-  school                 String                   @db.VarChar(80)
-  department             String                   @db.VarChar(80)
-  educationalDetails     EducationalDetails[]
-  researchDetails        ResearchDetails?
-  patentPublishedDetails PatentPublishedDetails[]
-  createdAt              DateTime                 @default(now())
+  uuid                                    Int                  @id @default(autoincrement())
+  id                                      String               @unique
+  salutation                              String               @db.VarChar(50)
+  name                                    String               @db.VarChar(50)
+  email                                   String               @unique
+  image                                   String?
+  designation                             String               @db.VarChar(50)
+  department                              String               @db.VarChar(80)
+  school                                  String               @db.VarChar(80)
+  educationalDetails                      EducationalDetails[]
+  postDoctoralExperience                  String?
+  researchDetails                         ResearchDetails?
+  // patentPublishedDetails                  PatentPublishedDetails[]
+  consultancyProjectDetails               Json[]               @default([])
+  completedConsultancyProjectDetails      Json[]               @default([])
+  ongoingFundedProjectDetails             Json[]               @default([])
+  completedFundedProjectDetails           Json[]               @default([])
+  patentPublishedDetails                  Json[]               @default([])
+  patentGrantedDetails                    Json[]               @default([])
+  bookPublishedDetails                    Json[]               @default([])
+  awardDetails                            String[]             @default([])
+  majorInternationalCollaborationsDetails String[]             @default([])
+  majorIndustryCollaborationsDetails      String[]             @default([])
+  editorialExperience                     String?
+  personalWebsite                         String?
+  createdAt                               DateTime             @default(now())
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @db.VarChar(50)
+  username  String   @unique
+  password  String   @db.VarChar(70)
+  createdAt DateTime @default(now())
 }

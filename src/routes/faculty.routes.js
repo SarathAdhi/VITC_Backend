@@ -27,9 +27,15 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const faculty = await prisma.faculty.findUnique(
-      defaultFacultyStructure(id)
-    );
+    const faculty = await prisma.faculty.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        educationalDetails: true,
+        researchDetails: true,
+      },
+    });
 
     if (faculty) {
       return res.status(200).send(faculty);
@@ -71,9 +77,9 @@ router.post("/", async (req, res) => {
       researchDetails: {
         create: { ...researchDetails },
       },
-      patentPublishedDetails: {
-        create: patentPublishedDetails ? [...patentPublishedDetails] : [],
-      },
+      // patentPublishedDetails: {
+      //   create: patentPublishedDetails ? [...patentPublishedDetails] : [],
+      // },
     };
 
     const faculty = await prisma.faculty.create({
@@ -95,12 +101,7 @@ router.put("/:uuid", async (req, res) => {
 
   uuid = parseInt(uuid);
 
-  const {
-    educationalDetails,
-    researchDetails,
-    patentPublishedDetails,
-    ...rest
-  } = req.body;
+  const { educationalDetails, researchDetails, ...rest } = req.body;
 
   try {
     await prisma.faculty.update({
@@ -125,19 +126,6 @@ router.put("/:uuid", async (req, res) => {
 
     educationalDetails.forEach(async (item) => {
       await prisma.educationalDetails.upsert({
-        where: {
-          id: item?.id || 999999,
-        },
-        update: item,
-        create: {
-          ...item,
-          facultyUuid: uuid,
-        },
-      });
-    });
-
-    patentPublishedDetails.forEach(async (item) => {
-      await prisma.patentPublishedDetails.upsert({
         where: {
           id: item?.id || 999999,
         },
@@ -174,27 +162,6 @@ router.delete("/educational-details/:id", async (req, res) => {
     return res
       .status(200)
       .send({ message: "Educational Details deleted successfully" });
-  } catch (error) {
-    return res.status(401).send({ error: "Something went wrong" });
-  }
-});
-
-// DELETE /faculty/patent-publish/:id (delete patent-published detail)
-router.delete("/patent-published-details/:id", async (req, res) => {
-  const { id } = req.params;
-
-  console.log(id);
-
-  try {
-    await prisma.patentPublishedDetails.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-
-    return res
-      .status(200)
-      .send({ message: "Patent Published details deleted successfully" });
   } catch (error) {
     return res.status(401).send({ error: "Something went wrong" });
   }
