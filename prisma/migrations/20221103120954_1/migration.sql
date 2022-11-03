@@ -12,7 +12,7 @@ CREATE TABLE "Faculty" (
     "educationalDetails" JSONB[] DEFAULT ARRAY[]::JSONB[],
     "postDoctoralExperience" TEXT,
     "researchDetails" JSONB NOT NULL,
-    "consultancyProjectDetails" JSONB[] DEFAULT ARRAY[]::JSONB[],
+    "ongoingConsultancyProjectDetails" JSONB[] DEFAULT ARRAY[]::JSONB[],
     "completedConsultancyProjectDetails" JSONB[] DEFAULT ARRAY[]::JSONB[],
     "ongoingFundedProjectDetails" JSONB[] DEFAULT ARRAY[]::JSONB[],
     "completedFundedProjectDetails" JSONB[] DEFAULT ARRAY[]::JSONB[],

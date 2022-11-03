@@ -23,7 +23,7 @@ model Faculty {
   educationalDetails                      Json[]   @default([])
   postDoctoralExperience                  String?
   researchDetails                         Json
-  consultancyProjectDetails               Json[]   @default([])
+  ongoingConsultancyProjectDetails        Json[]   @default([])
   completedConsultancyProjectDetails      Json[]   @default([])
   ongoingFundedProjectDetails             Json[]   @default([])
   completedFundedProjectDetails           Json[]   @default([])
