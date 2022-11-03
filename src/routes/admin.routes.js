@@ -77,8 +77,6 @@ router.post("/verify", async (req, res) => {
   try {
     const admin = await prisma.admin.findFirst({ where: { uuid: token } });
 
-    console.log(admin);
-
     if (!admin) {
       return res.status(200).send({ isAuth: false });
     }

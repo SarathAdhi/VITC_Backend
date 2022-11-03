@@ -1,18 +1,12 @@
 const express = require("express");
 const prisma = require("../lib/prisma");
-const { defaultFacultyStructure } = require("../utils/constants");
 
 const router = express.Router();
 
 // GET /faculty
 router.get("/", async (req, res) => {
   try {
-    const faculties = await prisma.faculty.findMany({
-      include: {
-        educationalDetails: true,
-        researchDetails: true,
-      },
-    });
+    const faculties = await prisma.faculty.findMany({});
 
     return res.status(200).send(faculties);
   } catch (error) {
@@ -30,10 +24,6 @@ router.get("/:id", async (req, res) => {
       where: {
         id: id,
       },
-      include: {
-        educationalDetails: true,
-        researchDetails: true,
-      },
     });
 
     if (faculty) {
@@ -48,14 +38,7 @@ router.get("/:id", async (req, res) => {
 
 // POST /faculty (create faculty)
 router.post("/", async (req, res) => {
-  const {
-    id,
-    name,
-    email,
-    educationalDetails,
-    researchDetails,
-    patentPublishedDetails,
-  } = req.body;
+  const { id, name, email } = req.body;
 
   let error = "";
 
@@ -70,15 +53,6 @@ router.post("/", async (req, res) => {
   try {
     const data = {
       ...req.body,
-      educationalDetails: {
-        create: [...educationalDetails],
-      },
-      researchDetails: {
-        create: { ...researchDetails },
-      },
-      // patentPublishedDetails: {
-      //   create: patentPublishedDetails ? [...patentPublishedDetails] : [],
-      // },
     };
 
     const faculty = await prisma.faculty.create({
@@ -100,8 +74,6 @@ router.put("/:uuid", async (req, res) => {
 
   uuid = parseInt(uuid);
 
-  const { educationalDetails, researchDetails, ...rest } = req.body;
-
   try {
     await prisma.faculty.update({
       where: {
@@ -109,31 +81,8 @@ router.put("/:uuid", async (req, res) => {
       },
 
       data: {
-        ...rest,
+        ...req.body,
       },
-    });
-
-    await prisma.researchDetails.update({
-      where: {
-        facultyUuid: uuid,
-      },
-
-      data: {
-        ...researchDetails,
-      },
-    });
-
-    educationalDetails.forEach(async (item) => {
-      await prisma.educationalDetails.upsert({
-        where: {
-          id: item?.id || 999999,
-        },
-        update: item,
-        create: {
-          ...item,
-          facultyUuid: uuid,
-        },
-      });
     });
 
     return res.status(200).send({
@@ -142,27 +91,6 @@ router.put("/:uuid", async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(401).send({ error });
-  }
-});
-
-// DELETE /faculty/educational-details/:id (delete educational detail)
-router.delete("/educational-details/:id", async (req, res) => {
-  const { id } = req.params;
-
-  console.log(id);
-
-  try {
-    await prisma.educationalDetails.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-
-    return res
-      .status(200)
-      .send({ message: "Educational Details deleted successfully" });
-  } catch (error) {
-    return res.status(401).send({ error: "Something went wrong" });
   }
 });
 
