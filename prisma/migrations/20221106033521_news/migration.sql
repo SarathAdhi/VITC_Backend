@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('SUPERADMIN', 'ADMIN', 'FACULTY');
+
 -- CreateTable
 CREATE TABLE "Faculty" (
     "uuid" SERIAL NOT NULL,
@@ -24,20 +27,12 @@ CREATE TABLE "Faculty" (
     "majorIndustryCollaborationsDetails" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "editorialExperience" TEXT,
     "personalWebsite" TEXT,
+    "password" VARCHAR(70) DEFAULT '',
+    "role" "Role" NOT NULL DEFAULT 'FACULTY',
+    "isApproved" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Faculty_pkey" PRIMARY KEY ("uuid")
-);
-
--- CreateTable
-CREATE TABLE "Admin" (
-    "id" SERIAL NOT NULL,
-    "uuid" VARCHAR(50) NOT NULL,
-    "username" TEXT NOT NULL,
-    "password" VARCHAR(70) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "Admin_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -45,9 +40,3 @@ CREATE UNIQUE INDEX "Faculty_id_key" ON "Faculty"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Faculty_email_key" ON "Faculty"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Admin_uuid_key" ON "Admin"("uuid");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Admin_username_key" ON "Admin"("username");

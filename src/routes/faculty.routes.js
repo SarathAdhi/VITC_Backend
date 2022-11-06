@@ -1,5 +1,6 @@
 const express = require("express");
 const prisma = require("../lib/prisma");
+const uuid = require("uuid");
 
 const router = express.Router();
 
@@ -36,8 +37,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST /faculty (create faculty)
-router.post("/", async (req, res) => {
+// POST /faculty/create (create faculty)
+router.post("/create", async (req, res) => {
   const { id, name, email } = req.body;
 
   let error = "";
@@ -52,6 +53,7 @@ router.post("/", async (req, res) => {
 
   try {
     const data = {
+      uuid: uuid.v4(),
       ...req.body,
     };
 
