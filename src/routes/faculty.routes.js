@@ -6,8 +6,32 @@ const router = express.Router();
 
 // GET /faculty
 router.get("/", async (req, res) => {
+  console.log("get faculty");
+
   try {
-    const faculties = await prisma.faculty.findMany({});
+    const faculties = await prisma.faculty.findMany({
+      where: {
+        isApproved: true,
+      },
+    });
+
+    return res.status(200).send(faculties);
+  } catch (error) {
+    console.log(error);
+    return res.status(401).send({ error });
+  }
+});
+
+// GET /approvals
+router.get("/approvals", async (req, res) => {
+  const { isApproved } = req.query;
+
+  try {
+    const faculties = await prisma.faculty.findMany({
+      where: {
+        isApproved: isApproved === "true",
+      },
+    });
 
     return res.status(200).send(faculties);
   } catch (error) {
@@ -26,6 +50,8 @@ router.get("/:id", async (req, res) => {
         id: id,
       },
     });
+
+    console.log(faculty);
 
     if (faculty) {
       return res.status(200).send(faculty);
@@ -71,15 +97,13 @@ router.post("/create", async (req, res) => {
 });
 
 // PUT /faculty/:id (update faculty)
-router.put("/:uuid", async (req, res) => {
-  let { uuid } = req.params;
-
-  uuid = parseInt(uuid);
+router.put("/:id", async (req, res) => {
+  let { id } = req.params;
 
   try {
     await prisma.faculty.update({
       where: {
-        uuid,
+        id,
       },
 
       data: {
@@ -89,6 +113,54 @@ router.put("/:uuid", async (req, res) => {
 
     return res.status(200).send({
       message: "Faculty updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(401).send({ error });
+  }
+});
+
+// PUT /faculty/approve/:id (approve faculty)
+router.put("/approve/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.faculty.update({
+      where: {
+        id,
+      },
+
+      data: {
+        isApproved: true,
+      },
+    });
+
+    return res.status(200).send({
+      message: "Faculty approved",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(401).send({ error });
+  }
+});
+
+// PUT /faculty/un-approve/:id (un-approve faculty)
+router.put("/un-approve/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.faculty.update({
+      where: {
+        id,
+      },
+
+      data: {
+        isApproved: false,
+      },
+    });
+
+    return res.status(200).send({
+      message: "Faculty un-approved",
     });
   } catch (error) {
     console.log(error);

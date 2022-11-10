@@ -83,10 +83,6 @@ router.post("/verify", async (req, res) => {
   const { password, ...rest } = faculty;
 
   return res.status(200).send({ isAuth: true, user: { ...rest } });
-  // try {
-  // } catch (error) {
-  //   return res.status(401).send({ error });
-  // }
 });
 
 module.exports = { authRouter: router };
