@@ -42,7 +42,6 @@ model Faculty {
 }
 
 enum Role {
-  SUPERADMIN
   ADMIN
   FACULTY
 }

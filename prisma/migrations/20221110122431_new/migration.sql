@@ -1,9 +1,9 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('SUPERADMIN', 'ADMIN', 'FACULTY');
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'FACULTY');
 
 -- CreateTable
 CREATE TABLE "Faculty" (
-    "uuid" SERIAL NOT NULL,
+    "uuid" TEXT NOT NULL,
     "id" TEXT NOT NULL,
     "salutation" VARCHAR(50) NOT NULL,
     "name" VARCHAR(50) NOT NULL,
