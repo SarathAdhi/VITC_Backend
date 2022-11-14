@@ -24,12 +24,13 @@ router.get("/", async (req, res) => {
 
 // GET /approvals
 router.get("/approvals", async (req, res) => {
-  const { isApproved } = req.query;
+  const { isApproved, school } = req.query;
 
   try {
     const faculties = await prisma.faculty.findMany({
       where: {
         isApproved: isApproved === "true",
+        school,
       },
     });
 
