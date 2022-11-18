@@ -18,7 +18,6 @@ model Faculty {
   email                                   String   @unique
   image                                   String?
   designation                             String   @db.VarChar(50)
-  department                              String   @db.VarChar(80)
   school                                  String   @db.VarChar(80)
   educationalDetails                      Json[]   @default([])
   postDoctoralExperience                  String?

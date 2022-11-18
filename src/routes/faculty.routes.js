@@ -1,6 +1,7 @@
 const express = require("express");
 const prisma = require("../lib/prisma");
 const uuid = require("uuid");
+const { validateToken } = require("../controllers/faculty.controllers");
 
 const router = express.Router();
 
@@ -24,13 +25,22 @@ router.get("/", async (req, res) => {
 
 // GET /approvals
 router.get("/approvals", async (req, res) => {
-  const { isApproved, school } = req.query;
+  const { isApproved } = req.query;
+
+  const admin = await validateToken(req);
+
+  if (!admin) return res.status(200).send({ error: "Unauthorized" });
+
+  const school = admin.school;
 
   try {
     const faculties = await prisma.faculty.findMany({
       where: {
         isApproved: isApproved === "true",
         school,
+        NOT: {
+          id: admin.id,
+        },
       },
     });
 
@@ -78,6 +88,18 @@ router.post("/create", async (req, res) => {
 
   if (error) return res.status(400).send({ error });
 
+  const isFacultyExist = await prisma.faculty.findUnique({
+    where: {
+      id: id,
+    },
+  });
+
+  console.log({ isFacultyExist });
+
+  if (isFacultyExist) {
+    return res.status(400).json({ error: "Faculty ID already exists" });
+  }
+
   try {
     const data = {
       uuid: uuid.v4(),
@@ -99,7 +121,15 @@ router.post("/create", async (req, res) => {
 
 // PUT /faculty/:id (update faculty)
 router.put("/:id", async (req, res) => {
-  let { id } = req.params;
+  const { id } = req.params;
+
+  const faculty = await validateToken(req);
+
+  console.log({ faculty });
+
+  if (!faculty) return;
+
+  const isAdmin = faculty.role === "ADMIN";
 
   try {
     await prisma.faculty.update({
@@ -109,6 +139,7 @@ router.put("/:id", async (req, res) => {
 
       data: {
         ...req.body,
+        isApproved: isAdmin === true,
       },
     });
 

@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const prisma = require("../lib/prisma");
 const uuid = require("uuid");
+const { validateToken } = require("../controllers/faculty.controllers");
 
 const router = express.Router();
 
@@ -63,7 +64,7 @@ router.post("/login", async (req, res) => {
 
     return res
       .status(200)
-      .send({ message: "Login successful", token: faculty.uuid });
+      .send({ message: "Login successful", token: faculty.uuid, faculty });
   } catch (error) {
     console.log(error);
     return res.status(401).send({ error });
@@ -71,10 +72,8 @@ router.post("/login", async (req, res) => {
 });
 
 // POST /verify (verify token)
-router.post("/verify", async (req, res) => {
-  const { token } = req.body;
-
-  const faculty = await prisma.faculty.findFirst({ where: { uuid: token } });
+router.get("/verify", async (req, res) => {
+  const faculty = await validateToken(req);
 
   if (!faculty) {
     return res.status(200).send({ isAuth: false });
