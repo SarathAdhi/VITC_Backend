@@ -34,7 +34,7 @@ router.get("/approvals", async (req, res) => {
   const school = admin.school;
 
   try {
-    const faculties = await prisma.faculty.findMany({
+    let faculties = await prisma.faculty.findMany({
       where: {
         isApproved: isApproved === "true",
         school,
@@ -42,6 +42,23 @@ router.get("/approvals", async (req, res) => {
           id: admin.id,
         },
       },
+    });
+
+    const facultiesDraft = await prisma.facultyDraft.findMany({
+      where: {
+        isApproved: isApproved === "true",
+        school,
+        NOT: {
+          id: admin.id,
+        },
+      },
+    });
+
+    faculties = faculties.map((fac) => {
+      const isExist = facultiesDraft.find((facD) => facD.id === fac.id);
+
+      if (isExist) return { ...isExist, isModified: true };
+      return fac;
     });
 
     return res.status(200).send(faculties);
@@ -54,23 +71,35 @@ router.get("/approvals", async (req, res) => {
 // GET /faculty/:id
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
+  let { originalData } = req.query;
+
+  originalData = originalData ? originalData === "true" : false;
 
   try {
+    const facultyDraft = await prisma.facultyDraft.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (facultyDraft && !originalData) {
+      const { password, ...rest } = facultyDraft;
+      return res.status(200).send({ ...rest });
+    }
+
     const faculty = await prisma.faculty.findUnique({
       where: {
         id: id,
       },
     });
 
-    console.log(faculty);
+    const { password: p1, ...rest2 } = faculty;
 
-    if (faculty) {
-      return res.status(200).send(faculty);
-    }
+    if (faculty) return res.status(200).send({ ...rest2 });
 
     return res.status(400).send({ error: "Faculty not found" });
   } catch (error) {
-    res.status(401).send({ error });
+    res.status(400).send({ error });
   }
 });
 
@@ -123,6 +152,8 @@ router.post("/create", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
 
+  const { password, ...rest } = req.body;
+
   const faculty = await validateToken(req);
 
   console.log({ faculty });
@@ -132,19 +163,70 @@ router.put("/:id", async (req, res) => {
   const isAdmin = faculty.role === "ADMIN";
 
   try {
-    await prisma.faculty.update({
-      where: {
-        id,
-      },
+    if (isAdmin) {
+      await prisma.faculty.update({
+        where: {
+          id,
+        },
 
-      data: {
-        ...req.body,
-        isApproved: isAdmin === true,
+        data: {
+          ...rest,
+          isApproved: true,
+        },
+      });
+
+      await prisma.facultyDraft.delete({
+        where: {
+          id,
+        },
+      });
+
+      return res.status(200).send({
+        message: "Profile updated successfully",
+      });
+    }
+
+    const { password: p1, ...detailsBeforeUpdating } = faculty;
+    const { password: p2, ...detailsAfterUpdating } = rest;
+
+    const x = JSON.stringify(detailsBeforeUpdating);
+    const y = JSON.stringify(detailsAfterUpdating);
+
+    if (x === y)
+      return res.status(400).send({
+        error: "No changes where made",
+      });
+
+    const isFacultyExistInDraft = await prisma.facultyDraft.findUnique({
+      where: {
+        id: id,
       },
     });
 
+    if (isFacultyExistInDraft) {
+      await prisma.facultyDraft.update({
+        where: {
+          id,
+        },
+
+        data: {
+          ...rest,
+          role: "FACULTY",
+          isApproved: false,
+        },
+      });
+    } else {
+      await prisma.facultyDraft.create({
+        data: {
+          ...rest,
+          role: "FACULTY",
+          isApproved: false,
+        },
+      });
+    }
+
     return res.status(200).send({
-      message: "Faculty updated successfully",
+      message: "Profile updated and submitted for review",
     });
   } catch (error) {
     console.log(error);
@@ -157,13 +239,28 @@ router.put("/approve/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
+    const facultyDraft = await prisma.facultyDraft.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    const { password, uuid, ...rest } = facultyDraft;
+
     await prisma.faculty.update({
       where: {
         id,
       },
 
       data: {
+        ...rest,
         isApproved: true,
+      },
+    });
+
+    await prisma.facultyDraft.delete({
+      where: {
+        id,
       },
     });
 

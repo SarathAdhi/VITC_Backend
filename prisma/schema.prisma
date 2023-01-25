@@ -40,6 +40,36 @@ model Faculty {
   createdAt                               DateTime @default(now())
 }
 
+model FacultyDraft {
+  uuid                                    String   @id
+  id                                      String   @unique
+  salutation                              String   @db.VarChar(50)
+  name                                    String   @db.VarChar(50)
+  email                                   String   @unique
+  image                                   String?
+  designation                             String   @db.VarChar(50)
+  school                                  String   @db.VarChar(80)
+  educationalDetails                      Json[]   @default([])
+  postDoctoralExperience                  String?
+  researchDetails                         Json
+  ongoingConsultancyProjectDetails        Json[]   @default([])
+  completedConsultancyProjectDetails      Json[]   @default([])
+  ongoingFundedProjectDetails             Json[]   @default([])
+  completedFundedProjectDetails           Json[]   @default([])
+  patentPublishedDetails                  Json[]   @default([])
+  patentGrantedDetails                    Json[]   @default([])
+  bookPublishedDetails                    Json[]   @default([])
+  awardDetails                            String[] @default([])
+  majorInternationalCollaborationsDetails String[] @default([])
+  majorIndustryCollaborationsDetails      String[] @default([])
+  editorialExperience                     String?
+  personalWebsite                         String?
+  password                                String?  @default("") @db.VarChar(70)
+  role                                    Role     @default(FACULTY)
+  isApproved                              Boolean  @default(false)
+  createdAt                               DateTime @default(now())
+}
+
 enum Role {
   ADMIN
   FACULTY

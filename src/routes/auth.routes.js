@@ -1,7 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const prisma = require("../lib/prisma");
-const uuid = require("uuid");
 const { validateToken } = require("../controllers/faculty.controllers");
 
 const router = express.Router();
