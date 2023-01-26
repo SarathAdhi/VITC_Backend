@@ -241,24 +241,36 @@ router.put("/approve/:id", async (req, res) => {
       },
     });
 
-    const { password, uuid, ...rest } = facultyDraft;
+    if (facultyDraft) {
+      const { password, uuid, ...rest } = facultyDraft;
 
-    await prisma.faculty.update({
-      where: {
-        id,
-      },
+      await prisma.faculty.update({
+        where: {
+          id,
+        },
 
-      data: {
-        ...rest,
-        isApproved: true,
-      },
-    });
+        data: {
+          ...rest,
+          isApproved: true,
+        },
+      });
 
-    await prisma.facultyDraft.delete({
-      where: {
-        id,
-      },
-    });
+      await prisma.facultyDraft.delete({
+        where: {
+          id,
+        },
+      });
+    } else {
+      await prisma.faculty.update({
+        where: {
+          id,
+        },
+
+        data: {
+          isApproved: true,
+        },
+      });
+    }
 
     return res.status(200).send({
       message: "Faculty approved",
