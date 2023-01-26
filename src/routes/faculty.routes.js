@@ -25,8 +25,6 @@ router.get("/", async (req, res) => {
 
 // GET /approvals
 router.get("/approvals", async (req, res) => {
-  const { isApproved } = req.query;
-
   const admin = await validateToken(req);
 
   if (!admin) return res.status(200).send({ error: "Unauthorized" });
@@ -36,7 +34,6 @@ router.get("/approvals", async (req, res) => {
   try {
     let faculties = await prisma.faculty.findMany({
       where: {
-        isApproved: isApproved === "true",
         school,
         NOT: {
           id: admin.id,
@@ -46,7 +43,6 @@ router.get("/approvals", async (req, res) => {
 
     const facultiesDraft = await prisma.facultyDraft.findMany({
       where: {
-        isApproved: isApproved === "true",
         school,
         NOT: {
           id: admin.id,
